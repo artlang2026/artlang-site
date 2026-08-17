@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ArtLang: Articulation-Structured Language Fields Enable Language-Guided Articulation Reasoning and Manipulation</title>
+
+  <!-- Fancy, modern typefaces (same family set as the ArtMesh site) -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Sora:wght@600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+
+
+  <style>
+    /* === Theme — teal/indigo, distinct from ArtMesh's violet === */
+    :root {
+      --text:#182022;
+      --muted:#566469;
+      --border:#d5dee0;
+      --border-soft:#e4ecee;
+      --bg:#f6fafa;
+      --card:#ffffff;
+      --accent:#12a3a8;
+      --accent-2:#4c6fff;
+      --shadow: 0 8px 24px rgba(14, 30, 33, 0.08);
+      --radius: 14px;
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+      max-width: 1000px;
+      margin: auto;
+      padding: 2.25rem;
+      line-height: 1.65;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 800px at 10% -10%, #e8f7f6 0%, transparent 60%),
+        radial-gradient(1000px 700px at 110% 10%, #eef0ff 0%, transparent 55%),
+        linear-gradient(180deg, #fbfdfd 0%, var(--bg) 100%);
+    }
+
+    h1, h2 {
+      color: var(--text);
+      margin-top: 3rem;
+      text-align: center;
+      font-family: 'Sora', 'Plus Jakarta Sans', sans-serif;
+      letter-spacing: .2px;
+    }
+    h1 {
+      font-weight: 700;
+      font-size: clamp(1.7rem, 1.1rem + 2vw, 2.3rem);
+      line-height: 1.18;
+      background: linear-gradient(90deg, var(--text) 0%, #1f3d40 40%, #34455e 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    h2 {
+      font-weight: 700;
+      font-size: clamp(1.25rem, 1rem + 1vw, 1.6rem);
+    }
+    h3 {
+      text-align:center;
+      font-family:'Sora', 'Plus Jakarta Sans', sans-serif;
+      font-weight:600;
+      margin-top:2rem;
+    }
+
+    .section-intro {
+      max-width: 780px;
+      margin: 0.25rem auto 1rem auto;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.98em;
+    }
+
+    /* Link buttons */
+    .links { text-align: center; margin-bottom: 2rem; }
+    .links a {
+      display: inline-block;
+      margin: .5rem;
+      padding: .6rem 1.05rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 700;
+      letter-spacing: .2px;
+      box-shadow: 0 6px 18px rgba(18,163,168,.28);
+      transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease;
+      will-change: transform;
+    }
+    .links a:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(18,163,168,.36); }
+    .links a:active { transform: translateY(0); opacity:.9; }
+
+    .byline { text-align:center; font-size:1.05em; margin-top:.5rem; }
+    .affil  { text-align:center; font-size:.95em; margin-top:.25rem; color: var(--muted); }
+
+    /* Media cards & figures */
+    figure {
+      margin: 2rem 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    figure img, figure video {
+      width: 100%;
+      height: auto;
+      display:block;
+      border-bottom: 1px solid var(--border-soft);
+      background:#fff;
+    }
+    figcaption {
+      padding: .85rem 1rem;
+      font-size: .95em;
+      color: var(--muted);
+      background: linear-gradient(180deg,#ffffff 0%, #fafdfd 100%);
+    }
+    .method-img { width: 88%; display: block; margin: 0 auto; border-radius: 16px; border:1px solid var(--border-soft); box-shadow: var(--shadow); }
+
+    /* Demo video at the top */
+    .demo-wrap {
+      margin: 1.5rem 0 2rem;
+      border-radius: var(--radius);
+      overflow:hidden;
+      border:1px solid var(--border);
+      box-shadow: var(--shadow);
+      background:#000;
+    }
+    .demo-wrap video { width:100%; height:auto; display:block; }
+
+    /* === Command cards: video + the command as a "typed" prompt === */
+    .command-grid{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:1.25rem;
+      margin:1.25rem 0 2rem;
+    }
+    .cmd-item{
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      padding:.6rem;
+      box-shadow: var(--shadow);
+      transition: transform .15s ease, box-shadow .2s ease;
+    }
+    .cmd-item:hover{ transform: translateY(-2px); box-shadow: 0 12px 28px rgba(14,30,33,0.10); }
+    .cmd-item video {
+      width:100%; height:auto; display:block;
+      border-radius: 10px;
+      border:1px solid var(--border-soft);
+      background:#000;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+    }
+    .cmd-prompt{
+      margin-top:.55rem;
+      font-family:'IBM Plex Mono', monospace;
+      font-size:.8em;
+      color:#0d3b3d;
+      background: linear-gradient(180deg,#eafaf9 0%, #f2fbfb 100%);
+      border:1px solid #cfeeed;
+      border-radius: 8px;
+      padding:.4rem .6rem;
+      text-align:center;
+    }
+    .cmd-prompt::before{ content:"› "; color: var(--accent); font-weight:600; }
+
+    /* === Generic result video grid === */
+    .video-grid{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:1.25rem;
+      margin:1.25rem 0 2rem;
+    }
+    .vid-item{
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      padding:.6rem;
+      box-shadow: var(--shadow);
+      transition: transform .15s ease, box-shadow .2s ease;
+    }
+    .vid-item:hover{ transform: translateY(-2px); box-shadow: 0 12px 28px rgba(14,30,33,0.10); }
+    .vid-item video {
+      width:100%; height:auto; display:block;
+      border-radius: 10px;
+      border:1px solid var(--border-soft);
+      background:#000;
+      aspect-ratio: 1 / 1;
+    }
+    .vid-caption {
+      text-align:center;
+      font-size:.85em;
+      color: var(--muted);
+      margin-top:.5rem;
+    }
+
+    /* Grounding sweeps: wide videos, 2-up */
+    .ground-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:1.25rem;
+      margin:1.25rem 0 2rem;
+    }
+    .ground-grid .vid-item video{ aspect-ratio: 16 / 9; }
+
+
+    /* Citation */
+    pre.citation {
+      background: linear-gradient(180deg, #f4fbfb 0%, #ffffff 100%);
+      border: 1px solid var(--border);
+      padding: 1rem;
+      overflow-x: auto;
+      font-size: 0.95em;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      color: #21343a;
+    }
+
+    @media (max-width:900px){
+      .video-grid, .command-grid { grid-template-columns:repeat(2, minmax(0,1fr)); }
+      .ground-grid { grid-template-columns:1fr; }
+      .method-img { width: 100%; }
+    }
+    @media (max-width:560px){
+      .video-grid, .command-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body id="top">
+  <h1>ArtLang: Articulation-Structured Language Fields Enable Language-Guided Articulation Reasoning and Manipulation</h1>
+
+  <p class="byline">
+    Anonymous Authors
+  </p>
+
+  <div class="links">
+    <a href="#">Paper</a>
+    <a href="#" aria-disabled="true">Code (coming soon)</a>
+    <a href="https://huggingface.co/datasets/ArtMesh2026/Articulate100" target="_blank" rel="noopener">Data</a>
+  </div>
+
+  <!-- ─────────────── Demo video at the top ─────────────── -->
+  <figure class="demo-wrap" style="margin:1.5rem 0 2rem;">
+    <video src="visuals/artlang_demo.mp4"
+           controls playsinline preload="metadata"></video>
+    <figcaption>
+      Articulated-object reconstructions recover explicit geometry and kinematics,
+      but their parts often remain semantically anonymous and must be controlled
+      through part indices and numerical joint parameters. We present
+      <strong>ArtLang</strong>, a framework for <strong>open-vocabulary language
+      control of persistent reconstructed articulated assets</strong>. ArtLang
+      represents an asset as a semantic-kinematic articulation graph and augments
+      its surface with language features and graph-constrained motion.
+      Open-vocabulary proposals are bound to reconstructed parts while allowing
+      uncertain parts to remain unnamed. A typed parser converts a command into a
+      directive graph containing referring expressions, actions, magnitudes,
+      reference frames, and relations. We then solve a global
+      <em>graph-to-graph grounding</em> problem that jointly reasons about
+      semantic, spatial, relational, and kinematic compatibility, with support for
+      null assignments and abstention under ambiguity. Accepted directives are
+      converted into continuous joint targets within the observed motion range and
+      executed through forward kinematics. Experiments on synthetic
+      reconstructions, mesh-based assets, and real captures demonstrate reliable
+      language grounding and continuous articulated control across repeated parts,
+      spatial references, relational commands, and ambiguous instructions.
+    </figcaption>
+  </figure>
+
+
+  <!-- ─────────────── Method / framework figure ─────────────── -->
+  <h2>Method</h2>
+  <p class="section-intro">
+    ArtLang is a <em>graph-to-graph</em> pipeline from language to an articulated
+    object's semantic and kinematic structure. <strong>(A)</strong> A part-aware
+    reconstruction (ArtMesh backend) is represented as an articulation graph with a
+    factorized semantic-kinematic field: every surface point carries its part
+    identity, a distilled language feature, and the graph-constrained motion of its
+    part. <strong>(B)</strong> Open-vocabulary features and VLM part proposals are
+    bound to persistent parts by semantic-geometric partial matching, giving each
+    part a noun and an FG-CLIP-2 anchor. <strong>(C)</strong> A typed parser turns
+    the command into a directive graph, which is globally grounded against the
+    articulation graph under semantic, spatial, relational, and action
+    compatibility, with support for null assignments and abstention under
+    ambiguity. <strong>(D)</strong> Accepted directives are converted to
+    calibrated joint targets inside the observation-supported interval and executed
+    by forward kinematics.
+  </p>
+  <img class="method-img" src="visuals/framework.png" alt="ArtLang framework (panels A–D)"/>
+
+  <!-- ─────────────── Language-guided articulation ─────────────── -->
+  <h2>Language-Guided Articulation</h2>
+  <p class="section-intro">
+    Free-form commands are resolved into <em>(part, joint coordinate)</em> targets and
+    executed as rigid motions — spatial qualifiers disambiguate same-noun parts
+    (<em>left / right / top</em>), magnitude modifiers and explicit angles map onto
+    the calibrated joint interval, multi-directive sentences ground globally, and relational references
+    resolve against the graph.
+    Each clip shows the command and the resulting actuation of the reconstructed
+    model. (Articulate-100 objects are captured with state&nbsp;0 open, so commands
+    typically <em>close</em> a part.)
+  </p>
+  <div class="command-grid">
+    <div class="cmd-item">
+      <video src="visuals/commands/close_the_top_drawer.mp4" autoplay loop muted playsinline></video>
+      <div class="cmd-prompt">close the top drawer</div>
+    </div>
+    <div class="cmd-item">
+      <video src="visuals/commands/close_the_left_door_halfway.mp4" autoplay loop muted playsinline></video>
+      <div class="cmd-prompt">close the left door halfway</div>
+    </div>
+    <div class="cmd-item">
+      <video src="visuals/commands/open_the_right_door.mp4" autoplay loop muted playsinline></video>
+      <div class="cmd-prompt">open the right door</div>
+    </div>
+  </div>
+
+  <!-- ─────────────── Continuous actuation (experiments: fig_text_move) ─────────────── -->
+  <h2>Continuous Language-Driven Actuation</h2>
+  <p class="section-intro">
+    The articulation coordinate supports continuous control: a directive selects a
+    part and any value of the actuation parameter <em>t</em> places it along its
+    learned trajectory — <em>t</em>&nbsp;=&nbsp;0 is the rest state,
+    <em>t</em>&nbsp;=&nbsp;1 the learned closed state, and negative values
+    extrapolate past the rest pose in the opening direction, through poses never
+    seen at training. Each clip sweeps one part while all others stay at rest;
+    because <em>t</em> scales the learned motion, the sweep doubles as a visual
+    audit of the recovered kinematics.
+  </p>
+  <div class="ground-grid">
+    <div class="vid-item">
+      <video src="visuals/sweeps/Table_22301__sweep.mp4" autoplay loop muted playsinline></video>
+      <div class="vid-caption">per-part t-sweep, t ∈ [−1, 1] — Table 22301</div>
+    </div>
+    <div class="vid-item">
+      <video src="visuals/sweeps/StorageFurniture_45940__sweep.mp4" autoplay loop muted playsinline></video>
+      <div class="vid-caption">per-part t-sweep, t ∈ [−1, 1] — StorageFurniture 45940</div>
+    </div>
+  </div>
+
+  <!-- ─────────────── Results on Articulate-100 (mesh + single-view end state) ─────────────── -->
+  <h2>Results on Articulate-100</h2>
+  <p class="section-intro">
+    Given a mesh and a single-view image of the end state, ArtLang recovers the
+    articulated object.
+  </p>
+  <div class="video-grid">
+    <div class="vid-item"><video src="visuals/results/Oven_7187__seg.mp4" autoplay loop muted playsinline></video><div class="vid-caption">Oven 7187</div></div>
+    <div class="vid-item"><video src="visuals/results/StorageFurniture_45940__seg.mp4" autoplay loop muted playsinline></video><div class="vid-caption">StorageFurniture 45940</div></div>
+    <div class="vid-item"><video src="visuals/results/Table_31249__seg.mp4" autoplay loop muted playsinline></video><div class="vid-caption">Table 31249</div></div>
+  </div>
+
+  <!-- ─────────────── Reconstruction regime (multi-view, two states) ─────────────── -->
+  <h2>Reconstruction</h2>
+  <p class="section-intro">
+    Reconstructing from multi-view observations of the two states, ArtLang
+    matches its ArtMesh backbone on joints and geometry — attaching the
+    language handle costs no reconstruction quality.
+  </p>
+  <div class="video-grid">
+    <div class="vid-item"><video src="visuals/recon/StorageFurniture_45612_ours_result_color.mp4" autoplay loop muted playsinline></video><div class="vid-caption">StorageFurniture 45612</div></div>
+    <div class="vid-item"><video src="visuals/recon/Foldingchair_100523_ours_result_color.mp4" autoplay loop muted playsinline></video><div class="vid-caption">Foldingchair 100523</div></div>
+    <div class="vid-item"><video src="visuals/recon/Eyeglasses_101293_ours_result_color.mp4" autoplay loop muted playsinline></video><div class="vid-caption">Eyeglasses 101293</div></div>
+  </div>
+
+  <!-- ─────────────── Real captures ─────────────── -->
+  <h2>Real-World Captures (SplArt)</h2>
+  <p class="section-intro">
+    The same pipeline applied to real SplArt objects: despite noisier geometry and
+    less clean boundaries than the synthetic set, the semantic and spatial axes
+    still resolve the intended part, and the motion axis actuates it along the
+    recovered joint — a user can address a captured object without touching a
+    joint index.
+  </p>
+  <figure>
+    <img src="visuals/results/fig_splart.png" alt="Real-world objects from SplArt" style="width:60%; display:block; margin:0 auto;"/>
+    <figcaption>Real-world objects from SplArt. The three-axis handle grounds and
+    actuates parts on captured objects where boundaries are less clean than in the
+    synthetic benchmarks. As these are real captures, there is neither a
+    ground-truth mesh nor the original capture lighting, so the lighting and color
+    of every method's renders may look off relative to the reference photo.</figcaption>
+  </figure>
+
+  <!-- ─────────────── Citation ─────────────── -->
+  <h2>Citation</h2>
+  <pre class="citation">@article{artlang2026,
+  title   = {ArtLang: Articulation-Structured Language Fields Enable
+             Language-Guided Articulation Reasoning and Manipulation},
+  author  = {Anonymous Authors},
+  journal = {Under review},
+  year    = {2026}
+}</pre>
+
+  <script>
+    // Pause videos when they scroll out of view — many simultaneous decodes
+    // thrashes the GPU and causes flicker on laptops.
+    (() => {
+      const vids = document.querySelectorAll('.vid-item video, .cmd-item video');
+      if (!('IntersectionObserver' in window)) return;
+      const io = new IntersectionObserver((entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) e.target.play().catch(() => {});
+          else                  e.target.pause();
+        }
+      }, { threshold: 0.25 });
+      vids.forEach(v => { v.pause(); io.observe(v); });
+    })();
+  </script>
+
+</body>
+</html>
