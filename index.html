@@ -198,6 +198,16 @@
       margin-top:.5rem;
     }
 
+    /* Challenge pair: square videos, 2-up */
+    .challenge-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:1.25rem;
+      margin:1.25rem 0 2rem;
+      max-width:760px;
+      margin-left:auto; margin-right:auto;
+    }
+
     /* Grounding sweeps: wide videos, 2-up */
     .ground-grid{
       display:grid;
@@ -291,6 +301,31 @@
     by forward kinematics.
   </p>
   <img class="method-img" src="visuals/framework.png" alt="ArtLang framework (panels A–D)"/>
+
+  <!-- ─────────────── Challenge: semantic/spatial ambiguity ─────────────── -->
+  <h2>Challenge: Semantic &amp; Spatial Ambiguity</h2>
+  <p class="section-intro">
+    Articulated objects repeat their parts: a cabinet has several doors and
+    drawers that share one noun, so a phrase like <em>&ldquo;the door&rdquo;</em> is
+    ambiguous on its own &mdash; language must resolve <em>which</em> parts move, not
+    just what kind. ArtLang treats this as <em>graph-to-graph</em> binding: the
+    command is parsed into a directive graph of entities, qualifiers, and
+    relations, and grounded onto the reconstructed articulation graph by a global
+    assignment over semantic, spatial, relational, and action compatibility &mdash;
+    so <em>&ldquo;close everything&rdquo;</em> actuates every movable part, while
+    <em>&ldquo;close the left and right doors&rdquo;</em> selects exactly the two
+    doors and leaves the drawer at rest.
+  </p>
+  <div class="challenge-grid">
+    <div class="vid-item">
+      <video src="visuals/challenge/close_everything__seg.mp4" autoplay loop muted playsinline></video>
+      <div class="vid-caption">semantic ambiguity: unable to distinguish part names</div>
+    </div>
+    <div class="vid-item">
+      <video src="visuals/challenge/close_the_left_and_right_doors__seg.mp4" autoplay loop muted playsinline></video>
+      <div class="vid-caption">spatial ambiguity: unable to distinguish same type of parts</div>
+    </div>
+  </div>
 
   <!-- ─────────────── Language-guided articulation ─────────────── -->
   <h2>Language-Guided Articulation</h2>
